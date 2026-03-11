@@ -3,7 +3,39 @@
 Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un registro de las decisiones tomadas, los aprendizajes adquiridos, los problemas que surgieron y la forma en que se resolvieron, y el progreso realizado.
 
 ## 📑 Índice
+- [[2026-03-11] - Sprint 1: Cimientos de Infraestructura y Estrategia Asíncrona](#2026-03-11---sprint-1-cimientos-de-infraestructura-y-estrategia-asíncrona)
 - [[2026-02-16 - 2026-02-23] - Proceso de Documentación](#2026-02-16---2026-02-23---proceso-de-documentación)
+
+---
+
+## [2026-03-11] - Sprint 1: Cimientos de Infraestructura y Estrategia Asíncrona
+
+### Contexto y objetivos
+El objetivo principal de esta sesión fue realizar la transición de la documentación a la implementación, configurando la infraestructura central del proyecto Optima. Un enfoque clave fue establecer un flujo de trabajo de desarrollo asíncrono robusto para permitir que los equipos de backend y frontend trabajen de forma independiente.
+
+### Implementación técnica
+- **Inicialización del backend (`phase1-01`)**: 
+    - Se inicializó el entorno de backend utilizando `uv`, garantizando una gestión de dependencias de alto rendimiento.
+    - Se configuró una estructura de directorios profesional: `backend/app/{api,core,models,schemas,services}`.
+    - Se implementó una aplicación FastAPI base con un endpoint `/health` para la verificación de la infraestructura.
+- **Contenerización y orquestación**:
+    - Se creó un `Dockerfile` para el backend utilizando una construcción multi-etapa con `uv` para un tamaño de imagen mínimo.
+    - Se desarrolló un `docker-compose.yml` en la raíz para orquestar el servicio FastAPI y una base de datos PostgreSQL 16.
+    - Se configuró el mapeo de puertos (5436:5432) para evitar conflictos locales con instancias de Postgres existentes.
+- **Gestión del entorno**:
+    - Se estableció un patrón estricto de `.env` y `.env.example` para proteger secretos proporcionando una plantilla clara para colaboradores.
+- **Estándares de calidad**:
+    - Se configuró `ruff` en `pyproject.toml` con reglas avanzadas (`B`, `UP`, `N`, `I`) para imponer una sintaxis de Python moderna y convenciones de nomenclatura consistentes.
+- **Automatización del tablero de Kanban**:
+    - Se generó un backlog completo en `SPRINTS.md` (entorno local) que las 3 primeras fases de desarrollo.
+    - Se automatizó la creación de Issues en GitHub usando `gh cli`, incluyendo etiquetas y referencias cruzadas para el trabajo asíncrono.
+
+### 💡 Repaso técnico: Desarrollo asíncrono mediante contratos de API
+Para resolver el cuello de botella donde el backend bloquea al frontend, adoptamos una estrategia **API-First**. Definiremos contratos explícitos en `docs/api-contracts.md` y el frontend podrá utilizar **Mock Service Worker (MSW)** para simular respuestas de la API. Esto permitirá que el desarrollo de la UI avance a toda velocidad incluso antes de que la lógica de negocio real o los modelos de base de datos se implementen en el backend.
+
+### Próximos pasos
+- **Issue `phase1-02`**: Configuración base del frontend con Next.js, Bun y `next-intl`.
+- **Issue `phase1-03`**: Definición del primer contrato de API (Auth) y definiciones iniciales de SQLModel.
 
 ---
 
