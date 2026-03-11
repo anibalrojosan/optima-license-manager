@@ -1,6 +1,7 @@
 # IDEs
 .vscode/
 .idea/
+.cursor/
 
 # Backend (Python/uv)
 __pycache__/
@@ -25,3 +26,6 @@ postgres_data/
 
 # Logs
 *.log
+
+# Plan de desarrollo
+SPRINTS.md
