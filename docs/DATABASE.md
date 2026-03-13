@@ -14,13 +14,21 @@ Este documento define la capa de persistencia de Optima. La base de datos está 
 
 ```mermaid
 erDiagram
-    ORGANIZATION ||--o{ USER : contains
-    USER ||--o{ LICENSE : owns
-    LICENSE ||--o{ COST_HISTORY : tracks
-    LICENSE ||--o{ ALERT_LOG : triggers
+    ORGANIZATION ||--o{ USER : contiene
+    ORGANIZATION ||--o{ LICENSE : posee
+    LICENSE ||--o{ COST_HISTORY : rastrea
+    LICENSE ||--o{ ALERT_LOG : dispara
+
+    ORGANIZATION {
+        int id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
 
     USER {
         int id PK
+        int organization_id FK
         string email UK
         string password_hash
         string role "admin, viewer"
@@ -30,7 +38,7 @@ erDiagram
 
     LICENSE {
         int id PK
-        int user_id FK
+        int organization_id FK
         string software_name
         decimal monthly_cost "Numeric(10,2)"
         string currency "ISO 4217 (Default USD)"
@@ -70,7 +78,7 @@ El campo `provider_metadata` en la tabla `LICENSE` permite almacenar datos espec
 ## 3. Estrategia de Rendimiento (Índices)
 
 Para cumplir con el KPI de latencia **<200ms**, se implementan los siguientes índices:
-1.  **B-Tree** en `license.user_id`: Acelera la carga del dashboard por usuario.
+1.  **B-Tree** en `license.organization_id`: Acelera la carga del dashboard por organización.
 2.  **B-Tree** en `license.renewal_date`: Optimiza el motor de alertas.
 3.  **GIN Index** en `license.provider_metadata`: Permite búsquedas rápidas dentro de los objetos JSON.
 4.  **Partial Index** en `license.deleted_at IS NULL`: Asegura que las consultas de licencias activas no escaneen registros borrados.
