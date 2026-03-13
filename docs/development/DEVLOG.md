@@ -3,12 +3,63 @@
 Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un registro de las decisiones tomadas, los aprendizajes adquiridos, los problemas que surgieron y la forma en que se resolvieron, y el progreso realizado.
 
 ## 📑 Índice
-- [[2026-03-11] - Sprint 1: Cimientos de Infraestructura y Estrategia Asíncrona](#2026-03-11---sprint-1-cimientos-de-infraestructura-y-estrategia-asíncrona)
+- [[2026-03-11] - Sprint 2 FE: Implementación de componentes y correcciones técnicas](#2026-03-11---sprint-2-implementación-de-componentes-y-correcciones-técnicas)
+- [[2026-03-11] - Sprint 1 FE: Finalización de la fase 1 y configuración del núcleo técnico](#2026-03-11---sprint-1-finalización-de-la-fase-1-y-configuración-del-núcleo-técnico)
+- [[2026-03-11] - Sprint 1 BE: Cimientos de Infraestructura y Estrategia Asíncrona](#2026-03-11---sprint-1-cimientos-de-infraestructura-y-estrategia-asíncrona)
 - [[2026-02-16 - 2026-02-23] - Proceso de Documentación](#2026-02-16---2026-02-23---proceso-de-documentación)
 
 ---
 
-## [2026-03-11] - Sprint 1: Cimientos de Infraestructura y Estrategia Asíncrona
+## [2026-03-11] - Sprint 2 FE: Implementación de componentes y correcciones técnicas
+
+### Contexto y objetivos
+El objetivo de esta sesión fue estabilizar el entorno técnico tras la fase inicial de cimientos y resolver deudas técnicas de tipado detectadas durante la integración de componentes.
+
+### Implementación técnica
+- **Corrección de tipos en configuración de i18n:** Se resolvió un error crítico de TypeScript en el archivo de configuración de `next-intl` (`src/i18n/request.ts`), asegurando que el motor de internacionalización reciba correctamente el objeto de mensajes.
+- **Saneamiento de código:** Aplicación de tipado estricto en configuraciones core y eliminación de usos de `any`.
+- **Estabilización de Componentes:** Inicio de la integración de componentes UI básicos tras la resolución de conflictos de tipado.
+
+### Próximos pasos
+- Iniciar la creación del layout base del dashboard (`AppLayout`).
+- Implementar la navegación lateral responsiva (Sidebar) mediante Shadcn/UI.
+- Realizar la primera prueba de conexión real con el backend de FastAPI.
+
+---
+
+## [2026-03-11] - Sprint 1 FE: Finalización de la fase 1 y configuración del núcleo técnico
+
+### Contexto y objetivos
+El objetivo de esta sesión fue establecer la infraestructura base del frontend de Optima. Se inició instalando **Bun** como motor principal, el cual instaló todas las dependencias e inicializó el stack tecnológico. Se completó la **Fase 1** (Kanban `phase1-02`), asegurando la operatividad de Next.js y el sistema de internacionalización (i18n).
+
+### Kanban: Phase 1-02 (Frontend Base Setup)
+- **ID:** `phase1-02: Frontend Base Setup (Next.js + Bun + i18n)`
+- **Branch:** `feat/frontend-setup`
+- **Tareas ejecutadas:**
+    - [FE] Inicializar Next.js en `frontend/` usando Bun.
+    - [FE] Configurar `next-intl` (EN/ES) para soporte multi-idioma nativo.
+    - [FE] Instalar Tailwind CSS + Shadcn/UI para la base visual.
+    - [FE] Estructurar `frontend/src/{app,components,features,lib,locales}`.
+    - [FE] Calidad: `cd frontend && bun run lint`.
+
+### Implementación técnica
+- **Inicialización con Bun:** Se seleccionó Bun como runtime y gestor de paquetes principal por su alta velocidad. Bun instaló la versión más reciente de **Next.js (16.1.6)** y todas las dependencias del núcleo.
+- **Turbopack y Tipado Estricto:** La adopción de **Turbopack** en esta versión trajo consigo un sistema de tipado mucho más estricto, lo que obligó a una configuración más precisa desde el arranque.
+- **Evolución del Ruteo (Proxy):** Siguiendo las nuevas convenciones, el antiguo `middleware.ts` fue sustituido por `proxy.ts`, gestionando el ruteo de locales (`es`/`en`) y evitar errores de hidratación.
+- **Configuración de i18n:** Se ajustó `src/i18n/request.ts` para manejar el parámetro `locale` de forma asíncrona, resolviendo bloqueos durante la compilación inicial.
+- **Saneamiento del repositorio Git:** Se eliminó un repositorio Git anidado accidentalmente en la carpeta `frontend/`, regularizando el historial mediante `git commit --amend`.
+- **Test de Calidad:** Se corrió exitosamente `bun run lint` para evidenciar que no existían errores estructurales ni de sintaxis tras el setup.
+
+### 💡 Repaso técnico: Ruteo en Next.js 16
+En esta versión, la convención `middleware.ts` ha sido marcada como obsoleta en favor de `proxy.ts`. Esto requiere que el archivo de configuración de `next-intl` apunte explícitamente a la ruta del archivo de solicitudes para que el plugin de internacionalización funcione correctamente con la carpeta `src/`.
+
+### Próximos pasos
+- Iniciar Sprint 2 FE: Realizar correcciones técnicas de tipado y comenzar la construcción del layout.
+- Integración de componentes mediante Shadcn/UI.
+
+---
+
+## [2026-03-11] - Sprint 1 BE: Cimientos de Infraestructura y Estrategia Asíncrona
 
 ### Contexto y objetivos
 El objetivo principal de esta sesión fue realizar la transición de la documentación a la implementación, configurando la infraestructura central del proyecto Optima. Un enfoque clave fue establecer un flujo de trabajo de desarrollo asíncrono robusto para permitir que los equipos de backend y frontend trabajen de forma independiente.
