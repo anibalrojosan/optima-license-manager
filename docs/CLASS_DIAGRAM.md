@@ -14,12 +14,31 @@ Este documento detalla la estructura de clases de **Optima**, diseñada bajo los
 
 ```mermaid
 classDiagram
+    class Organization {
+        <<SQLModel>>
+        +int id
+        +string name
+        +DateTime created_at
+        +DateTime updated_at
+    }
+
+    class User {
+        <<SQLModel>>
+        +int id
+        +int organization_id
+        +string email
+        +string password_hash
+        +string role
+        +DateTime created_at
+        +DateTime updated_at
+    }
+
     class License {
         <<SQLModel>>
         +int id
-        +int user_id
+        +int organization_id
         +string software_name
-        +int monthly_cost_cents
+        +Decimal monthly_cost
         +JSONB provider_metadata
         +DateTime renewal_date
         +DateTime created_at
@@ -29,15 +48,15 @@ classDiagram
 
     class FinOpsEngine {
         <<Service>>
-        +calculate_monthly_burn(user_id)
-        +project_annual_spend(user_id)
+        +calculate_monthly_burn(organization_id)
+        +project_annual_spend(organization_id)
         +detect_anomalies(license_id)
     }
 
     class LicenseService {
         <<Application Service>>
         -db_session
-        +get_user_licenses(user_id)
+        +get_organization_licenses(organization_id)
         +create_new_license(data)
         +soft_delete_license(id)
     }
@@ -45,12 +64,14 @@ classDiagram
     class NotificationService {
         <<Background Service>>
         +check_renewals()
-        +send_alert(user_id, type)
+        +send_alert(organization_id, type)
     }
 
-    LicenseService --> License : manipulates
-    FinOpsEngine ..> License : analyzes
-    NotificationService ..> License : monitors
+    Organization -- User : contiene
+    Organization -- License : posee
+    LicenseService --> License : manipula
+    FinOpsEngine ..> License : analiza
+    NotificationService ..> License : monitorea
 ```
 
 ## 2. Descripción de las Capas
@@ -64,7 +85,7 @@ classDiagram
 *   **NotificationService:** Servicio de fondo que monitorea el estado de las licencias y gestiona el ciclo de vida de las alertas.
 
 ### 2.3 Capa de Validación e Integridad
-*   **SQLModel Validation:** Garantiza la **Precisión Financiera** mediante el uso de enteros (centavos). La validación ocurre en el momento de la instanciación, asegurando que ningún dato corrupto llegue al motor de cálculo.
+*   **SQLModel Validation:** Garantiza la **Precisión Financiera** mediante el uso de `Decimal` (mapeado a `Numeric(10,2)` en DB). La validación ocurre en el momento de la instanciación, asegurando que ningún dato corrupto llegue al motor de cálculo.
 
 ## 3. Alineación con la Ambición del Proyecto
 
