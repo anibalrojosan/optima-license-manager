@@ -7,6 +7,39 @@ Este documento define el contrato entre el Frontend y el Backend para los servic
 
 ---
 
+## Flujo de Trabajo (Request/Response Cycle)
+El siguiente diagrama describe la interacción entre el Frontend y el Backend durante el proceso de autenticación y acceso a recursos protegidos.
+
+```mermaid
+sequenceDiagram
+    participant Client as Frontend (Next.js)
+    participant API as Backend (FastAPI)
+    participant DB as Database (PostgreSQL)
+
+    Note over Client, DB: 🔐 Proceso de Autenticación (JWT)
+    
+    Client->>API: POST /auth/login (email, password)
+    API->>DB: Buscar usuario por email
+    DB-->>API: Retornar User (con password_hash)
+    
+    Note right of API: Verificar password vs password_hash (bcrypt)
+    
+    API->>API: Generar JWT (firmado con SECRET_KEY)
+    API-->>Client: 200 OK (access_token, user_data)
+    
+    Note over Client, DB: 🛡️ Petición Protegida (Ej: Ver Licencias)
+    
+    Client->>API: GET /api/v1/licenses (Header: Authorization Bearer JWT)
+    
+    Note right of API: Validar firma y expiración del JWT
+    
+    API->>DB: Consultar datos de la organización
+    DB-->>API: Datos de licencias
+    API-->>Client: 200 OK (JSON Data)
+```
+
+---
+
 ## 1. Registro de Usuario y Organización
 Crea una nueva organización y un usuario administrador vinculado a ella.
 

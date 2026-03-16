@@ -3,10 +3,35 @@
 Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un registro de las decisiones tomadas, los aprendizajes adquiridos, los problemas que surgieron y la forma en que se resolvieron, y el progreso realizado.
 
 ## 📑 Índice
+- [[2026-03-12] - Backend | Sprint 2: Implementación de seguridad y JWT](#2026-03-12---backend--sprint-2-implementación-de-seguridad-y-jwt)
 - [[2026-03-12] - Backend | Sprint 3: Modelado y contrato de autenticación](#2026-03-12---backend--sprint-2-modelado-y-contrato-de-autenticación)
 - [[2026-03-11] - Frontend | Sprint 2: Setup base y estabilización de componentes](#2026-03-11---frontend--sprint-2-setup-base-y-estabilización-de-componentes)
 - [[2026-03-11] - Backend | Sprint 1: Setup base y estrategia asíncrona](#2026-03-11---backend--sprint-1-setup-base-y-estrategia-asíncrona)
 - [[2026-02-16 - 2026-02-23] - Estrategia y documentación](#2026-02-16---2026-02-23---estrategia-y-documentación)
+
+---
+
+## [2026-03-12] - Backend | Sprint 2: Implementación de seguridad y JWT
+
+### Contexto y objetivos
+Inicio de la fase de seguridad real (`phase1-04`) para el sistema de autenticación. El objetivo principal es establecer las herramientas criptográficas necesarias para el manejo de contraseñas y la generación de tokens de acceso, garantizando un sistema de sesión escalable y seguro.
+
+### Implementación técnica
+- **Gestión de dependencias:** Instalación de `passlib[bcrypt]` para el hashing de contraseñas y `python-jose` para la gestión de tokens JWT mediante `uv`.
+- **Núcleo de seguridad:** Creación del módulo `backend/app/core/security.py` que centraliza las funciones de utilidad para:
+    - Hashing de contraseñas con el algoritmo **Bcrypt** (incluyendo *salting* automático).
+    - Verificación de credenciales comparando texto plano con hashes almacenados.
+    - Generación de tokens JWT firmados con una `SECRET_KEY` y tiempo de expiración configurable.
+- **Configuración de entorno:** Actualización de `.env` y `.env.example` con variables críticas de seguridad (`SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`).
+- **Documentación visual:** Integración de diagramas de secuencia Mermaid en `ARCHITECTURE.md` y `docs/api-contracts/auth.md` para ilustrar el ciclo de vida de una petición autenticada.
+
+### 💡 Repaso técnico: JWT y arquitectura Stateless
+La adopción de **JWT (JSON Web Tokens)** permite que Optima funcione bajo una arquitectura **Stateless** (sin estado). A diferencia de las sesiones tradicionales donde el servidor debe recordar a cada usuario en una base de datos o memoria (Redis), en un sistema *stateless* el servidor no guarda nada sobre la sesión activa. Toda la información necesaria para identificar al usuario está contenida en el propio token que viaja en cada petición. Gracias a la firma digital creada con nuestra `SECRET_KEY`, el backend puede confiar plenamente en la integridad del token sin necesidad de consultar una tabla de sesiones, lo que reduce la latencia y permite que el sistema escale horizontalmente de forma masiva.
+
+### Próximos pasos (continuar con este sprint phase1-04)
+- Crear el servicio de autenticación en `backend/app/services/auth.py` para orquestar el registro y login.
+- Implementar la inyección de dependencias `get_current_user` para proteger rutas privadas.
+- Continuar con el desarrollo de la API de autenticación.
 
 ---
 
