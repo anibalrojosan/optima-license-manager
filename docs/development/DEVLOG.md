@@ -3,15 +3,44 @@
 Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un registro de las decisiones tomadas, los aprendizajes adquiridos, los problemas que surgieron y la forma en que se resolvieron, y el progreso realizado.
 
 ## 📑 Índice
-- [[2026-03-12] - Backend | Sprint 2: Implementación de seguridad y JWT](#2026-03-12---backend--sprint-2-implementación-de-seguridad-y-jwt)
-- [[2026-03-12] - Backend | Sprint 3: Modelado y contrato de autenticación](#2026-03-12---backend--sprint-2-modelado-y-contrato-de-autenticación)
-- [[2026-03-11] - Frontend | Sprint 2: Setup base y estabilización de componentes](#2026-03-11---frontend--sprint-2-setup-base-y-estabilización-de-componentes)
+- [[2026-03-18] - Backend | Sprint 2: Finalización de autenticación JWT](#2026-03-18---backend--sprint-2-finalización-de-autenticación-jwt)
+- [[2026-03-13] - Backend | Sprint 2: Implementación de seguridad y JWT](#2026-03-13---backend--sprint-2-implementación-de-seguridad-y-jwt)
+- [[2026-03-12] - Backend | Sprint 2: Modelado y contrato de autenticación](#2026-03-12---backend--sprint-2-modelado-y-contrato-de-autenticación)
+- [[2026-03-11] - Frontend | Sprint 1: Setup base y estabilización de componentes](#2026-03-11---frontend--sprint-1-setup-base-y-estabilización-de-componentes)
 - [[2026-03-11] - Backend | Sprint 1: Setup base y estrategia asíncrona](#2026-03-11---backend--sprint-1-setup-base-y-estrategia-asíncrona)
 - [[2026-02-16 - 2026-02-23] - Estrategia y documentación](#2026-02-16---2026-02-23---estrategia-y-documentación)
 
 ---
 
-## [2026-03-12] - Backend | Sprint 2: Implementación de seguridad y JWT
+## [2026-03-18] - Backend | Sprint 2: Finalización de autenticación JWT
+
+### Contexto y objetivos
+Completar el issue `phase1-04` implementando la capa de servicios, dependencias de seguridad y los endpoints de autenticación. El objetivo es que el backend exponga rutas funcionales de registro e inicio de sesión que cumplan el contrato definido en `docs/api-contracts/auth.md`.
+
+### Implementación técnica
+- **Conexión a base de datos:** Creación de `backend/app/core/db.py` con el motor SQLModel y el generador `get_session` para inyección de dependencias.
+- **Servicio de autenticación:** Implementación de `backend/app/services/auth.py` con `authenticate_user` (verificación de credenciales) y `register_new_user` (creación atómica de organización y usuario con rol admin).
+- **Dependencias de seguridad:** Creación de `backend/app/api/deps.py` con `get_current_user` para validar JWT y `SessionDep` usando `Annotated` para simplificar las firmas de las rutas.
+- **Endpoints de la API:** Implementación de `POST /register` y `POST /login` en `backend/app/api/v1/auth.py`, integrando servicio, generación de tokens y esquemas de respuesta.
+- **Integración en la aplicación:** Registro del router de auth en `main.py` bajo el prefijo `/api/v1/auth`.
+
+### 💡 Repaso técnico: FastAPI, dependencias y router
+**FastAPI** utiliza las anotaciones de tipo para resolver automáticamente qué inyectar en cada parámetro de una ruta:
+- Un parámetro tipado como `UserLoginRequest` hace que FastAPI parsee y valide el cuerpo JSON.
+- Un parámetro tipado como `SessionDep` (que encapsula `Depends(get_session)`) hace que FastAPI ejecute el generador y pase la sesión de base de datos.
+- Este enfoque **declarativo** elimina código repetitivo y garantiza que la sesión se cierre correctamente al finalizar la petición.
+- El **router** (`APIRouter`) permite agrupar rutas por dominio (auth, licencias, etc.) y montarlas en la aplicación principal con `app.include_router()`, aplicando un prefijo común (por ejemplo `/api/v1/auth`) y etiquetas para la documentación Swagger. 
+
+Esta estructura facilita la escalabilidad y el versionado de la API.
+
+### Próximos pasos
+- Añadir creación de tablas al arranque (`create_all`) o configurar Alembic para migraciones.
+- Probar los endpoints de forma manual o mediante pruebas de integración.
+- Iniciar `phase1-05` (Auth UI) en el frontend para consumir la API real.
+
+---
+
+## [2026-03-13] - Backend | Sprint 2: Implementación de seguridad y JWT
 
 ### Contexto y objetivos
 Inicio de la fase de seguridad real (`phase1-04`) para el sistema de autenticación. El objetivo principal es establecer las herramientas criptográficas necesarias para el manejo de contraseñas y la generación de tokens de acceso, garantizando un sistema de sesión escalable y seguro.
@@ -28,14 +57,14 @@ Inicio de la fase de seguridad real (`phase1-04`) para el sistema de autenticaci
 ### 💡 Repaso técnico: JWT y arquitectura Stateless
 La adopción de **JWT (JSON Web Tokens)** permite que Optima funcione bajo una arquitectura **Stateless** (sin estado). A diferencia de las sesiones tradicionales donde el servidor debe recordar a cada usuario en una base de datos o memoria (Redis), en un sistema *stateless* el servidor no guarda nada sobre la sesión activa. Toda la información necesaria para identificar al usuario está contenida en el propio token que viaja en cada petición. Gracias a la firma digital creada con nuestra `SECRET_KEY`, el backend puede confiar plenamente en la integridad del token sin necesidad de consultar una tabla de sesiones, lo que reduce la latencia y permite que el sistema escale horizontalmente de forma masiva.
 
-### Próximos pasos (continuar con este sprint phase1-04)
+### Próximos pasos (continuar con el desarrollo del sprint `phase1-04`)
 - Crear el servicio de autenticación en `backend/app/services/auth.py` para orquestar el registro y login.
 - Implementar la inyección de dependencias `get_current_user` para proteger rutas privadas.
 - Continuar con el desarrollo de la API de autenticación.
 
 ---
 
-## [2026-03-12] - Backend | Sprint 3: Modelado y contrato de autenticación
+## [2026-03-12] - Backend | Sprint 2: Modelado y contrato de autenticación
 
 ### Contexto y objetivos
 El objetivo de esta sesión fue completar el issue `phase1-03`, estableciendo los cimientos de la autenticación y el modelo de datos multi-inquilino (*multi-tenancy*). Se buscó definir un contrato de API claro que permita al equipo de frontend trabajar de forma asíncrona mediante el uso de simulacros (*mocks*).
@@ -56,7 +85,7 @@ Una de las mayores ventajas de usar `SQLModel` junto con esquemas de Pydantic es
 
 ---
 
-## [2026-03-11] - Frontend | Sprint 2: Setup base y estabilización de componentes
+## [2026-03-11] - Frontend | Sprint 1: Setup base y estabilización de componentes
 
 ### Contexto y objetivos
 Establecer la infraestructura base del frontend de Optima y estabilizar el entorno técnico resolviendo deudas técnicas de tipado detectadas durante la integración inicial. Se completó la fase de configuración base (`phase1-02`).
