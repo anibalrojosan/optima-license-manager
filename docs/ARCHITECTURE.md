@@ -13,9 +13,10 @@ Este documento describe la arquitectura del sistema Optima, desde la visión gen
    - [4.2 Gestión de Estado (State Management)](#42-gestión-de-estado-state-management)
    - [4.3 Resiliencia y Manejo de Errores](#43-resiliencia-y-manejo-de-errores)
 5. [Arquitectura de Backend](#5-arquitectura-de-backend)
-   - [5.1 Stack Tecnológico](#51-stack-tecnológico)
-   - [5.2 Motor FinOps (Domain Logic)](#52-motor-finops-domain-logic)
-   - [5.3 Seguridad](#53-seguridad)
+   - [5.1 Flujo de Autenticación y Seguridad (JWT)](#51-flujo-de-autenticación-y-seguridad-jwt)
+   - [5.2 Stack Tecnológico](#52-stack-tecnológico)
+   - [5.3 Motor FinOps (Domain Logic)](#53-motor-finops-domain-logic)
+   - [5.4 Seguridad](#54-seguridad)
 6. [Capa de Datos y Persistencia](#6-capa-de-datos-y-persistencia)
 7. [Infraestructura y DevOps](#7-infraestructura-y-devops)
 8. [Registros de Decisiones Arquitectónicas (ADR)](#8-registros-de-decisiones-arquitectónicas-adr)
@@ -175,12 +176,44 @@ El sistema está diseñado para fallar con gracia, sin romper la experiencia del
 
 El backend es el núcleo de la lógica de FinOps, construido bajo principios de **alto rendimiento**, **tipado estático** y **seguridad**.
 
-### 5.1 Stack Tecnológico
+### 5.1 Flujo de Autenticación y Seguridad (JWT)
+
+El sistema utiliza una arquitectura *stateless* basada en tokens JWT para garantizar la escalabilidad y seguridad de las peticiones.
+
+```mermaid
+sequenceDiagram
+    participant Client as Frontend (Next.js)
+    participant API as Backend (FastAPI)
+    participant DB as Database (PostgreSQL)
+
+    Note over Client, DB: 🔐 Proceso de Autenticación (JWT)
+    
+    Client->>API: POST /auth/login (email, password)
+    API->>DB: Buscar usuario por email
+    DB-->>API: Retornar User (con password_hash)
+    
+    Note right of API: Verificar password vs password_hash (bcrypt)
+    
+    API->>API: Generar JWT (firmado con SECRET_KEY)
+    API-->>Client: 200 OK (access_token, user_data)
+    
+    Note over Client, DB: 🛡️ Petición Protegida (Ej: Ver Licencias)
+    
+    Client->>API: GET /api/v1/licenses (Header: Authorization Bearer JWT)
+    
+    Note right of API: Validar Firma y Expiración del JWT
+    
+    API->>DB: Consultar datos de la Organización
+    DB-->>API: Datos de licencias
+    API-->>Client: 200 OK (JSON Data)
+```
+
+### 5.2 Stack Tecnológico
 
 * **Framework:** **FastAPI** (Python 3.12+). Elegido por su velocidad (ASGI) y generación automática de documentación (OpenAPI/Swagger).
 * **Validación:** **Pydantic**. Garantiza que cada byte que entra y sale de la API cumple estrictamente con el esquema definido, previniendo errores de datos en tiempo de ejecución.
 
-### 5.2 Motor FinOps (Domain Logic)
+### 5.3 Motor FinOps (Domain Logic)
 
 Esta capa contiene la lógica pura de negocio, desacoplada de la capa HTTP:
 
@@ -188,7 +221,7 @@ Esta capa contiene la lógica pura de negocio, desacoplada de la capa HTTP:
 * **Detección de Anomalías:** Alertas de renovación y picos de gasto inesperados.
 * **Normalización:** Estandarización de datos provenientes de diferentes proveedores de nube/SaaS.
 
-### 5.3 Seguridad
+### 5.4 Seguridad
 
 * **Autenticación:** Implementación de **OAuth2** con flujo de *Password Bearer*.
 * **Protección:** Hashing de contraseñas con **bcrypt** y emisión de tokens **JWT** (JSON Web Tokens) con tiempo de expiración corto.
