@@ -5,8 +5,8 @@ Registra decisiones técnicas, alineaciones estratégicas con Backend/Product y 
 
 ## 📑 Índice
 
-- [[2026-03-11] - Sprint 2: Implementación de componentes y correcciones técnicas](#2026-03-11---sprint-2-implementación-de-componentes-y-correcciones-técnicas)
-- [[2026-03-11] - Sprint 1: Finalización de la fase 1 y configuración del núcleo técnico](#2026-03-11---sprint-1-finalización-de-la-fase-1-y-configuración-del-núcleo-técnico)
+- [[2026-03-16] - Frontend | Sprint 5: Auth UI & Validation Refactor](#2026-03-16---frontend--sprint-5-auth-ui--validation-refactor)
+- [[2026-03-11] - Frontend | Sprint 2: Setup base y estabilización de componentes](#2026-03-11---frontend--sprint-2-setup-base-y-estabilización-de-componentes)
 - [[2026-03-09/10] - Entrenamiento: Gestión avanzada de datos con objetos y desestructuración](#2026-03-0910---entrenamiento-gestión-avanzada-de-datos-con-objetos-y-desestructuración)
 - [[2026-03-05/06] - Entrenamiento: Lógica condicional profesional para interfaces reactivas](#2026-03-0506---entrenamiento-lógica-condicional-profesional-para-interfaces-reactivas)
 - [[2026-03-04/05] - Hito 14: Configuración core y arquitectura base (Fase 1)](#2026-03-0405---hito-14-configuración-core-y-arquitectura-base-fase-1)
@@ -26,52 +26,59 @@ Registra decisiones técnicas, alineaciones estratégicas con Backend/Product y 
 
 ---
 
-## [2026-03-11] - Sprint 2: Implementación de componentes y correcciones técnicas
+## [2026-03-16] - Frontend | Sprint 2: Auth UI & Validation Refactor
 
-### Contexto y objetivos
-El objetivo de esta sesión fue estabilizar el entorno técnico tras la fase inicial de cimientos y resolver deudas técnicas de tipado detectadas durante la integración de componentes.
+### Resumen
+Se comenzó el desarrollo de la interfaz de usuario para la fase (`phase-05 Auth UI & Protected Routes`) de autenticación (Login y Registro) bajo los estándares de Next.js 16.1.6 (Turbopack). El enfoque principal fue la migración de validaciones manuales a esquemas robustos con Zod, la resolución de conflictos de arquitectura en el Middleware de internacionalización y la optimización de assets siguiendo las reglas del linter de Next.js.
 
-### Implementación técnica
-- **Corrección de tipos en configuración de i18n:** Se resolvió un error crítico de TypeScript en el archivo de configuración de `next-intl` (`src/i18n/request.ts`), asegurando que el motor de internacionalización reciba correctamente el objeto de mensajes.
-- **Saneamiento de código:** Aplicación de tipado estricto en configuraciones core y eliminación de usos de `any`.
-- **Estabilización de Componentes:** Inicio de la integración de componentes UI básicos tras la resolución de conflictos de tipado.
+### Tareas realizadas
+**[FE] Crear formularios de Login/Registro (Shadcn + Zod)**
+- **Refactorización de Lógica:** Se eliminaron los estados manuales (`useState`) en `RegisterForm.tsx` y `AuthForm.tsx` para integrar `react-hook-form` con el resolver de Zod.
+- **Esquemas de Validación:** Se creó un archivo centralizado de validaciones (`src/lib/validations/auth.ts`) definiendo reglas de negocio estrictas:
+  - Emails con formato corporativo obligatorio.
+  - Contraseñas con longitud mínima de 8 caracteres.
+  - Validación de paridad (matching) entre contraseña y confirmación mediante `.refine()`.
+- **UX & i18n:** Se implementaron los enlaces de salto entre Login y Registro usando el componente `Link` de `next-intl` para mantener el contexto del idioma (`/es`, `/en`).
+- **UI Components:** Se añadieron elementos de accesibilidad (Labels asociados por ID) y campos adicionales solicitados (Checkbox "Recordarme" y enlaces de recuperación).
 
-### Próximos pasos
-- Iniciar la creación del layout base del dashboard (`AppLayout`).
-- Implementar la navegación lateral responsiva (Sidebar) mediante Shadcn/UI.
-- Realizar la primera prueba de conexión real con el backend de FastAPI.
+**Infraestructura y Configuración (Next.js 16 + Turbopack)**
+- **Middleware Migration:** Se resolvió el conflicto de rutas causado por la coexistencia de `middleware.ts` y `proxy.ts`. Se estableció `proxy.ts` como el estándar único de interceptación conforme a la documentación de Next.js 16 para evitar el error de *Unhandled Rejection*.
+- **Image Optimization:** Se corrigieron advertencias del linter migrando etiquetas `<img>` a componentes `<Image />` de Next.js.
+- **Remote Patterns:** Se configuró el `next.config.ts` para permitir el dominio `www.google.com`, habilitando el uso seguro de assets externos (favicon de Google para el login social).
+- **Run quality checks:** `cd frontend && bun run lint`
+- **Estado del Linter:** Se logró un estado de 0 errores y 0 advertencias tras ajustar los tipos de JSX y limpiar la caché de Turbopack (`rm -rf .next`).
+- **Tipado Estricto:** Se solucionaron conflictos de tipos en las props de componentes de imagen causados por la estrictez de React 19/Next 16.
+
+### Notas Técnicas
+- **Entorno:** El uso de Bun en WSL2 (Ubuntu) ha demostrado una latencia de compilación de ~2.6s, cumpliendo con los objetivos de agilidad del proyecto.
+- **Contrato API:** Las interfaces de salida de los formularios (`RegisterValues`) ya reflejan exactamente el contrato definido en la fase `phase1-03`, dejando el terreno listo para la interceptación con MSW.
+
+### Pendientes para la siguiente sesión
+- [ ] [FE] Mocking: Configurar msw/browser para interceptar POST `/auth/login`.
+- [ ] [FE] Auth State: Implementar un store básico o cookie para persistir el token devuelto por el mock.
+- [ ] [FE] Middleware: Activar la protección de rutas privadas basándose en la existencia del token.
 
 ---
 
-## [2026-03-11] - Sprint 1: Finalización de la fase 1 y configuración del núcleo técnico
+## [2026-03-11] - Frontend | Sprint 2: Setup base y estabilización de componentes
 
 ### Contexto y objetivos
-El objetivo de esta sesión fue establecer la infraestructura base del frontend de Optima. Se inició instalando **Bun** como motor principal, el cual instaló todas las dependencias e inicializó el stack tecnológico. Se completó la **Fase 1** (Kanban `phase1-02`), asegurando la operatividad de Next.js y el sistema de internacionalización (i18n).
-
-### Kanban: Phase 1-02 (Frontend Base Setup)
-- **ID:** `phase1-02: Frontend Base Setup (Next.js + Bun + i18n)`
-- **Branch:** `feat/frontend-setup`
-- **Tareas ejecutadas:**
-    - [FE] Inicializar Next.js en `frontend/` usando Bun.
-    - [FE] Configurar `next-intl` (EN/ES) para soporte multi-idioma nativo.
-    - [FE] Instalar Tailwind CSS + Shadcn/UI para la base visual.
-    - [FE] Estructurar `frontend/src/{app,components,features,lib,locales}`.
-    - [FE] Calidad: `cd frontend && bun run lint`.
+Establecer la infraestructura base del frontend de Optima y estabilizar el entorno técnico resolviendo deudas técnicas de tipado detectadas durante la integración inicial. Se completó la fase de configuración base (`phase1-02: Frontend Base Setup (Next.js + Bun + i18n)`).
 
 ### Implementación técnica
-- **Inicialización con Bun:** Se seleccionó Bun como runtime y gestor de paquetes principal por su alta velocidad. Bun instaló la versión más reciente de **Next.js (16.1.6)** y todas las dependencias del núcleo.
-- **Turbopack y Tipado Estricto:** La adopción de **Turbopack** en esta versión trajo consigo un sistema de tipado mucho más estricto, lo que obligó a una configuración más precisa desde el arranque.
-- **Evolución del Ruteo (Proxy):** Siguiendo las nuevas convenciones, el antiguo `middleware.ts` fue sustituido por `proxy.ts`, gestionando el ruteo de locales (`es`/`en`) y evitar errores de hidratación.
-- **Configuración de i18n:** Se ajustó `src/i18n/request.ts` para manejar el parámetro `locale` de forma asíncrona, resolviendo bloqueos durante la compilación inicial.
-- **Saneamiento del repositorio Git:** Se eliminó un repositorio Git anidado accidentalmente en la carpeta `frontend/`, regularizando el historial mediante `git commit --amend`.
-- **Test de Calidad:** Se corrió exitosamente `bun run lint` para evidenciar que no existían errores estructurales ni de sintaxis tras el setup.
+- **Inicialización con Bun y Next.js**: Se seleccionó Bun como gestor de paquetes por su velocidad, instalando la versión más reciente de Next.js. Se estructuró el proyecto en `frontend/src/{app,components,features,lib,locales}`.
+- **Configuración de i18n**: Implementación de `next-intl` para soporte multi-idioma (EN/ES). Se ajustó `src/i18n/request.ts` para manejar el parámetro `locale` de forma asíncrona, resolviendo bloqueos de compilación.
+- **Resolución de tipos en Next.js 16**: Corrección de errores críticos de TypeScript en la configuración de internacionalización y eliminación de usos de `any` en configuraciones core.
+- **Stack visual**: Instalación de Tailwind CSS y Shadcn/UI para la base de la interfaz de usuario.
+- **Saneamiento de Git**: Eliminación de un repositorio Git anidado accidentalmente en la carpeta `frontend/`.
 
 ### 💡 Repaso técnico: Ruteo en Next.js 16
 En esta versión, la convención `middleware.ts` ha sido marcada como obsoleta en favor de `proxy.ts`. Esto requiere que el archivo de configuración de `next-intl` apunte explícitamente a la ruta del archivo de solicitudes para que el plugin de internacionalización funcione correctamente con la carpeta `src/`.
 
 ### Próximos pasos
-- Iniciar Sprint 2: Realizar correcciones técnicas de tipado y comenzar la construcción del layout.
-- Integración de componentes mediante Shadcn/UI.
+- Iniciar la creación del layout base del dashboard (`AppLayout`).
+- Implementar la navegación lateral responsiva (Sidebar) mediante Shadcn/UI.
+- Realizar la primera prueba de conexión real con el backend de FastAPI usando el contrato de API.
 
 ---
 

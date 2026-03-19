@@ -1,1 +1,80 @@
-{"Index": {"title": "Bienvenido a Optima", "description": "Gestión de licencias"}}
+{
+  "Index": {
+    "title": "Optimiza tu infraestructura, maximiza tu rentabilidad.",
+    "description": "La plataforma integral para la gestión inteligente de licencias y costos de nube en tiempo real bajo metodología FinOps.",
+    "cta_start": "Comenzar ahora"
+  },
+  "Footer": {
+    "copyright": "Optima License Manager © 2026. Todos los derechos reservados.",
+    "version": "Optima FinOps Engine v1.0"
+  },
+  "WelcomeModal": {
+    "title": "Bienvenido a Optima",
+    "description": "Selecciona cómo deseas ingresar a la plataforma corporativa.",
+    "login_button": "Iniciar Sesión",
+    "register_button": "Crear Cuenta Nueva"
+  },
+  "Navbar": {
+    "product": "Producto",
+    "pricing": "Precios",
+    "about": "Acerca de",
+    "login": "Iniciar Sesión",
+    "start": "Comenzar"
+  },
+  "Product": {
+    "section_title": "Nuestra Plataforma",
+    "it_title": "Para IT",
+    "it_desc": "Gestión de inventario técnico y cumplimiento de licencias.",
+    "cfo_title": "Para CFO",
+    "cfo_desc": "Optimización de costos y visibilidad financiera en tiempo real.",
+    "emp_title": "Para Empleados",
+    "emp_desc": "Acceso simplificado a las herramientas necesarias para el flujo de trabajo."
+  },
+  "Pricing": {
+    "title": "Precios escalables para cada etapa",
+    "subtitle": "Elige el plan que mejor se adapte a las necesidades de tu organización.",
+    "standard": "Standard",
+    "premium": "Premium / Custom",
+    "enterprise": "Enterprise",
+    "custom_price": "Personalizado",
+    "popular_badge": "Más Popular",
+    "cta_standard": "Comenzar",
+    "cta_premium": "Contactar Ventas",
+    "cta_enterprise": "Consultar ahora"
+  },
+  "About": {
+    "title": "Nacimos para optimizar",
+    "description": "Optima nace de la necesidad de unificar la visión técnica y financiera (FinOps). Nuestra misión es permitir que las empresas escalen su infraestructura sin perder el control de su presupuesto, transformando el gasto en una inversión estratégica."
+  },
+  "Auth": {
+    "login_title": "Iniciar Sesión",
+    "login_subtitle": "Accede a tu panel corporativo",
+    "email_label": "Email Corporativo",
+    "password_label": "Contraseña",
+    "remember_me": "Recordarme",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "continue_with": "O continuar con",
+    "google_account": "Cuenta Google",
+    "no_account": "¿No posees una cuenta?",
+    "register_link": "Regístrate aquí",
+    "login_button": "Iniciar Sesión",
+    "logging_in": "Iniciando sesión...",
+    "errors": {
+      "invalid_email": "Introduce un email corporativo válido",
+      "password_required": "La contraseña es requerida"
+    }
+  },
+  "Register": {
+    "title": "Crear Cuenta Corporativa",
+    "org_name_label": "Nombre de la Organización",
+    "email_label": "Email Corporativo",
+    "password_label": "Contraseña",
+    "confirm_password_label": "Confirmar Contraseña",
+    "submit_button": "Crear cuenta corporativa",
+    "submitting": "Creando cuenta...",
+    "have_account": "¿Ya tienes una cuenta?",
+    "login_link": "Inicia sesión aquí",
+    "register_with": "O regístrate con",
+    "google_account": "Cuenta Google"
+  }
+}

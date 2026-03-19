@@ -3,6 +3,7 @@
 Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un registro de las decisiones tomadas, los aprendizajes adquiridos, los problemas que surgieron y la forma en que se resolvieron, y el progreso realizado.
 
 ## 📑 Índice
+- [[2026-03-19] - Frontend | Sprint 5: Auth UI, Mocking & Protected Routes](#2026-03-19---frontend--sprint-5-auth-ui-mocking--protected-routes)
 - [[2026-03-18] - Backend | Sprint 2: Finalización de autenticación JWT](#2026-03-18---backend--sprint-2-finalización-de-autenticación-jwt)
 - [[2026-03-13] - Backend | Sprint 2: Implementación de seguridad y JWT](#2026-03-13---backend--sprint-2-implementación-de-seguridad-y-jwt)
 - [[2026-03-12] - Backend | Sprint 2: Modelado y contrato de autenticación](#2026-03-12---backend--sprint-2-modelado-y-contrato-de-autenticación)
@@ -11,6 +12,33 @@ Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un 
 - [[2026-02-16 - 2026-02-23] - Estrategia y documentación](#2026-02-16---2026-02-23---estrategia-y-documentación)
 
 ---
+
+## [2026-03-19] - Frontend | Sprint 5: Auth UI, Mocking & Protected Routes
+
+### Contexto y objetivos
+Consolidar la infraestructura central del frontend, integrando capacidades de simulación de API, seguridad en rutas y una arquitectura de componentes globalizada. El objetivo principal es permitir el desarrollo del flujo de autenticación y el dashboard de forma independiente de la madurez del backend, garantizando al mismo tiempo una experiencia de usuario consistente y accesible en múltiples idiomas.
+
+### Implementación técnica
+- **Infraestructura de Mocking (MSW):** Integración de `Mock Service Worker` para interceptar peticiones de red. Se configuró el Service Worker (`mockServiceWorker.js`) y se definieron los *handlers* para el contrato `POST /api/v1/auth/login`, permitiendo simular estados de éxito (JWT ficticio) y error (401 Unauthorized). Se implementó `MSWProvider.tsx` para sincronizar el arranque del worker con el ciclo de vida de React.
+- **Refactorización de Formularios:** Transición hacia un sistema robusto basado en `react-hook-form` coordinado con `Zod` para validaciones de esquema (email corporativo, fortaleza de contraseña). Se implementó el consumo de la API mediante `fetch` y la persistencia de sesión a través de cookies con atributos `SameSite=Lax`, esenciales para la validación en el servidor.
+- **Middleware de Protección y Proxy:** Evolución del middleware de internacionalización hacia un **Proxy Central** (`proxy.ts`). Este componente ahora gestiona de forma unificada el ruteo por idioma y el control de acceso (redirección automática de usuarios no autenticados al `/login` y de usuarios logueados fuera de las rutas de auth), manteniendo la compatibilidad total con `next-intl`.
+- **Arquitectura UI e i18n:** Rediseño del `Navbar` con un sistema de tres pilares y navegación "Smooth Scroll". Se implementaron secciones dinámicas para la Homepage (Producto, Precios, Acerca de) y se extrajeron todos los literales a archivos JSON, permitiendo traducciones dinámicas incluso en los mensajes de validación de los formularios.
+- **Estabilización del Entorno:** Actualización de la configuración de ESLint 9 (`eslint.config.mjs`) para corregir errores de tipo en el "Flat Config" y blindaje de archivos autogenerados para mantener un reporte de linter limpio.
+
+### 💡 Repaso técnico: MSW y el desacoplamiento Frontend-Backend:
+El uso de **Mock Service Worker (MSW)** marca un antes y un después en el flujo de trabajo. A diferencia de un *proxy* o un servidor de mocks tradicional, MSW funciona a nivel de red (Service Worker), lo que significa que el código de la aplicación usa `fetch` exactamente igual a como lo haría en producción. Esto permite:
+1. **Desarrollo Paralelo:** El frontend puede avanzar sobre contratos de API antes de que el backend haya escrito una sola línea de lógica.
+2. **Pruebas de Borde:** Simular errores de red, latencia o respuestas 500 de manera trivial sin tocar el servidor real.
+3. **Consistencia:** Cuando el backend esté listo, la única diferencia será desactivar el worker; el código de consumo de datos permanecerá intacto.
+
+### Próximos pasos
+- Realizar la conexión real con los endpoints de autenticación del backend una vez finalizada su estabilización.
+- Implementar el Dashboard principal consumiendo datos reales/mockeados de licencias.
+- Expandir la cobertura de pruebas unitarias sobre los componentes de UI.
+
+---
+
+
 
 ## [2026-03-18] - Backend | Sprint 2: Finalización de autenticación JWT
 

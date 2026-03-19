@@ -42,3 +42,6 @@ next-env.d.ts
 
 # docs
 docs_fe
+
+# msw
+public/mockServiceWorker.js
