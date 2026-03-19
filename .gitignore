@@ -2,6 +2,7 @@
 .vscode/
 .idea/
 .cursor/
+.agents/
 
 # Backend (Python/uv)
 __pycache__/
