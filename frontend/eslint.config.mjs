@@ -12,7 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "public/mockServiceWorker.js",
   ]),
 ]);
 
-export default eslintConfig;
+export default eslintConfig

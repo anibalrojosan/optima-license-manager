@@ -1,16 +1,18 @@
+//Layout principal de la aplicación (cáscara global)
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import "./globals.css";
+import { MSWProvider } from '@/components/ui/providers/MSWProvider';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
 });
 
@@ -26,17 +28,17 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>; // En Next.js 14/15 params es una Promesa
 }) {
-  // Obtenemos el locale y los mensajes correspondientes
+  // Obtener el locale y los mensajes correspondientes
   const { locale } = await params;
   const messages = await getMessages({ locale });
 
   return (
-    <html lang={locale}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang={locale} className={`${inter.variable} ${robotoMono.variable}`}>
+      <body className="antialiased font-sans">
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <MSWProvider>
+            {children}
+          </MSWProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -1,1 +1,80 @@
-{"Index": {"title": "Welcome to Optima", "description": "License management"}}
+{
+  "Index": {
+    "title": "Optimize your infrastructure, maximize your profitability.",
+    "description": "The comprehensive platform for intelligent license management and real-time cloud costs under FinOps methodology.",
+    "cta_start": "Get started"
+  },
+  "Footer": {
+    "copyright": "Optima License Manager © 2026. All rights reserved.",
+    "version": "Optima FinOps Engine v1.0"
+  },
+  "WelcomeModal": {
+    "title": "Welcome to Optima",
+    "description": "Select how you would like to access the corporate platform.",
+    "login_button": "Sign In",
+    "register_button": "Create New Account"
+  },
+  "Navbar": {
+    "product": "Product",
+    "pricing": "Pricing",
+    "about": "About",
+    "login": "Sign In",
+    "start": "Get Started"
+  },
+  "Product": {
+    "section_title": "Our Platform",
+    "it_title": "For IT Teams",
+    "it_desc": "Technical inventory management and full license compliance.",
+    "cfo_title": "For CFOs",
+    "cfo_desc": "Cost optimization and real-time financial visibility.",
+    "emp_title": "For Employees",
+    "emp_desc": "Simplified access to the tools needed for efficient workflow."
+  },
+  "Pricing": {
+    "title": "Scalable pricing for every stage",
+    "subtitle": "Choose the plan that best fits your organization's needs.",
+    "standard": "Standard",
+    "premium": "Premium / Custom",
+    "enterprise": "Enterprise",
+    "custom_price": "Custom",
+    "popular_badge": "Most Popular",
+    "cta_standard": "Get Started",
+    "cta_premium": "Contact Sales",
+    "cta_enterprise": "Inquire Now"
+  },
+  "About": {
+    "title": "Born to optimize",
+    "description": "Optima was born from the need to unify technical and financial visions (FinOps). Our mission is to allow companies to scale their infrastructure without losing control of their budget, transforming spending into a strategic investment."
+  },
+  "Auth": {
+    "login_title": "Sign In",
+    "login_subtitle": "Access your corporate dashboard",
+    "email_label": "Corporate Email",
+    "password_label": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot your password?",
+    "continue_with": "Or continue with",
+    "google_account": "Google Account",
+    "no_account": "Don't have an account?",
+    "register_link": "Register here",
+    "login_button": "Sign In",
+    "logging_in": "Signing in...",
+    "errors": {
+      "invalid_email": "Enter a valid corporate email",
+      "password_required": "Password is required"
+    }
+  },
+  "Register": {
+    "title": "Create Corporate Account",
+    "org_name_label": "Organization Name",
+    "email_label": "Corporate Email",
+    "password_label": "Password",
+    "confirm_password_label": "Confirm Password",
+    "submit_button": "Create corporate account",
+    "submitting": "Creating account...",
+    "have_account": "Already have an account?",
+    "login_link": "Sign in here",
+    "register_with": "Or register with",
+    "google_account": "Google Account"
+  }
+}
