@@ -9,16 +9,26 @@ from sqlmodel import Session, create_engine
 
 load_dotenv()
 
-POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
-POSTGRES_SERVER = os.getenv("POSTGRES_SERVER", "localhost")
-POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5436")
-POSTGRES_DB = os.getenv("POSTGRES_DB", "optima_db")
 
-SQLALCHEMY_DATABASE_URI = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+def _resolve_database_url() -> str:
+    """Prefer DATABASE_URL; otherwise build from POSTGRES_* (local/dev fallback)."""
+    explicit = os.getenv("DATABASE_URL")
+    if explicit:
+        return explicit
+
+    user = os.getenv("POSTGRES_USER", "postgres")
+    password = os.getenv("POSTGRES_PASSWORD", "postgres")
+    server = os.getenv("POSTGRES_SERVER", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5436")
+    db = os.getenv("POSTGRES_DB", "optima_db")
+    return f"postgresql://{user}:{password}@{server}:{port}/{db}"
+
+
+SQLALCHEMY_DATABASE_URI = _resolve_database_url()
 
 # Create the database engine
 engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=False)
+
 
 def get_session() -> Generator[Session, None, None]:
     """

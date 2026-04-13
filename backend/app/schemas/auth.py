@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -21,11 +21,15 @@ class UserLoginRequest(UserBase):
 
 
 class OrganizationRead(OrganizationBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
 
 
 class UserRead(UserBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     organization_id: int
     role: str
