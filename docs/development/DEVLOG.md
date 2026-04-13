@@ -3,6 +3,7 @@
 Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un registro de las decisiones tomadas, los aprendizajes adquiridos, los problemas que surgieron y la forma en que se resolvieron, y el progreso realizado.
 
 ## 📑 Índice
+- [[2026-04-13] - Backend | Alembic y persistencia de auth sobre PostgreSQL](#2026-04-13---backend--alembic-y-persistencia-de-auth-sobre-postgresql)
 - [[2026-03-19] - Frontend | Sprint 5: Auth UI, Mocking & Protected Routes](#2026-03-19---frontend--sprint-5-auth-ui-mocking--protected-routes)
 - [[2026-03-18] - Backend | Sprint 2: Finalización de autenticación JWT](#2026-03-18---backend--sprint-2-finalización-de-autenticación-jwt)
 - [[2026-03-13] - Backend | Sprint 2: Implementación de seguridad y JWT](#2026-03-13---backend--sprint-2-implementación-de-seguridad-y-jwt)
@@ -10,6 +11,27 @@ Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un 
 - [[2026-03-11] - Frontend | Sprint 1: Setup base y estabilización de componentes](#2026-03-11---frontend--sprint-1-setup-base-y-estabilización-de-componentes)
 - [[2026-03-11] - Backend | Sprint 1: Setup base y estrategia asíncrona](#2026-03-11---backend--sprint-1-setup-base-y-estrategia-asíncrona)
 - [[2026-02-16 - 2026-02-23] - Estrategia y documentación](#2026-02-16---2026-02-23---estrategia-y-documentación)
+
+---
+
+## [2026-04-13] - Backend | Alembic y persistencia de auth sobre PostgreSQL
+
+### Contexto y objetivos
+Configurar las migraciones para que el esquema de PostgreSQL quede versionado con **Alembic** y los endpoints de autenticación persistan datos de forma fiable. Con ello se completa el bloque de cimientos del backend previsto en la **fase 1** del roadmap y el proyecto pasa a enfocarse en la **fase 2** (autenticación y seguridad en profundidad, integración frontend–backend).
+
+### Implementación técnica
+- **Alembic:** Configuración de `alembic.ini`, `alembic/env.py` enlazado a `SQLALCHEMY_DATABASE_URI` desde `app.core.db` y `SQLModel.metadata`, con import de modelos para autogenerate. Migración inicial `8ce721e374d4` que crea tablas `organization` y `user`, índices y clave foránea.
+- **Conexión unificada:** `DATABASE_URL` como fuente principal en `db.py`, con fallback a variables `POSTGRES_*`; actualización de `backend/.env.example` y dependencias `python-dotenv`, `email-validator` y pin de `bcrypt` compatible con passlib.
+- **Contrato HTTP:** `ConfigDict(from_attributes=True)` en esquemas de lectura de auth para serializar instancias SQLModel en `AuthResponse`.
+- **Docker Compose:** Sobrescritura de `DATABASE_URL` en el servicio `backend` hacia `db:5432` para la red interna, evitando que un `.env` pensado para el host (`localhost:5436`) rompa el contenedor del API.
+- **Raíz del repositorio:** `.env.example` con `POSTGRES_*` para interpolación de Compose; `Makefile` con objetivos `sync-root-env`, `up`, `alembic-upgrade`, `ruff-backend`, entre otros.
+
+### 💡 Repaso técnico: Alembic frente a tablas creadas a mano
+Usamos **Alembic** como herramienta para versionar el esquema de la base de datos. Este versionamiento se puede visualizar como una cadena de revisiones aplicadas sobre una tabla de control (`alembic_version`). Así, cualquier entorno (local, Docker, CI) puede reproducir el mismo estado de base ejecutando `alembic upgrade head`, sin depender de `create_all` al arrancar la app ni de scripts sueltos. La comparación entre el modelo declarativo (`SQLModel`) y la base real permite autogenerar migraciones y revisar el SQL antes de fusionarlo.
+
+### Próximos pasos
+- Avanzar en la **fase 2** del [ROADMAP](../ROADMAP.md): endurecer seguridad (refresh, logout, `/me`), CORS, logging y conexión real del frontend a la API.
+- Ejecutar `make sync-root-env` tras cambiar credenciales en `backend/.env` antes de `make up`, y documentar el flujo para nuevos integrantes del equipo.
 
 ---
 
