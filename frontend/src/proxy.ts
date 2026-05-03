@@ -1,4 +1,4 @@
-/// Filtro de Seguridad e Idioma
+/// Esquema de Control de Acceso Basado en Rutas (RBAC Ligero) con Persistencia de Sesión y Prefijos de Idioma - Filtro de Seguridad e Idioma
 // Verifica si la página es para todos o solo para miembros - Revisa el "carnet" (token) en las cookies - Entrega la página en el idioma que pediste
 
 import createMiddleware from 'next-intl/middleware';
