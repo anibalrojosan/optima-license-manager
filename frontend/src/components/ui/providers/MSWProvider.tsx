@@ -7,19 +7,22 @@ export function MSWProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initMSW = async () => {
-      // Solo activa MSW en desarrollo
-      if (process.env.NODE_ENV === 'development') {
-        const { worker } = await import('@/mocks/browser');
-        // 'bypass' permite que las peticiones que NO están en handlers sigan su curso normal
-        await worker.start({ onUnhandledRequest: 'bypass' });
+      const enableMsw = process.env.NEXT_PUBLIC_ENABLE_MSW === 'true';
+
+      try {
+        if (process.env.NODE_ENV === 'development' && enableMsw) {
+          const { worker } = await import('@/mocks/browser');
+          await worker.start({ onUnhandledRequest: 'bypass' });
+        }
+      } finally {
+        setMswReady(true);
       }
-      setMswReady(true);
     };
 
-    initMSW();
+    void initMSW();
   }, []);
 
-  if (!mswReady) return null; // Previene fallos visuales/hidratación hasta que MSW cargue
+  if (!mswReady) return null;
 
   return <>{children}</>;
 }
