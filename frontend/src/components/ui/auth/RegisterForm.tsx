@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTranslations } from "next-intl";
+import { formatFastApiDetail } from "@/lib/api-errors";
 
 export const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,20 +42,6 @@ export const RegisterForm = () => {
     },
   });
 
-  const formatApiDetail = (detail: unknown): string => {
-    if (typeof detail === "string") return detail;
-    if (Array.isArray(detail)) {
-      return detail
-        .map((item) =>
-          typeof item === "object" && item !== null && "msg" in item
-            ? String((item as { msg: string }).msg)
-            : JSON.stringify(item),
-        )
-        .join(" ");
-    }
-    return "No se pudo completar el registro";
-  };
-
   const onSubmit = async (data: RegisterValues) => {
     setIsLoading(true);
     setServerError(null);
@@ -76,7 +63,12 @@ export const RegisterForm = () => {
         document.cookie = `access_token=${result.access_token}; path=/; max-age=86400; SameSite=Lax`;
         router.push("/dashboard");
       } else {
-        setServerError(formatApiDetail(result?.detail));
+        setServerError(
+          formatFastApiDetail(
+            result?.detail,
+            "No se pudo completar el registro",
+          ),
+        );
       }
     } catch {
       setServerError("Error de conexión");
