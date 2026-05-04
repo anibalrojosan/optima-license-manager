@@ -3,6 +3,7 @@
 Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un registro de las decisiones tomadas, los aprendizajes adquiridos, los problemas que surgieron y la forma en que se resolvieron, y el progreso realizado.
 
 ## 📑 Índice
+- [[2026-05-03] - Frontend | Sprint 5.5: Integración real de auth y proxy hacia la API](#2026-05-03---frontend--sprint-55-integración-real-de-auth-y-proxy-hacia-la-api)
 - [[2026-04-13] - Backend | Alembic y persistencia de auth sobre PostgreSQL](#2026-04-13---backend--alembic-y-persistencia-de-auth-sobre-postgresql)
 - [[2026-03-19] - Frontend | Sprint 5: Auth UI, Mocking & Protected Routes](#2026-03-19---frontend--sprint-5-auth-ui-mocking--protected-routes)
 - [[2026-03-18] - Backend | Sprint 2: Finalización de autenticación JWT](#2026-03-18---backend--sprint-2-finalización-de-autenticación-jwt)
@@ -11,6 +12,36 @@ Este documento describe el proceso de desarrollo del proyecto **Optima**. Es un 
 - [[2026-03-11] - Frontend | Sprint 1: Setup base y estabilización de componentes](#2026-03-11---frontend--sprint-1-setup-base-y-estabilización-de-componentes)
 - [[2026-03-11] - Backend | Sprint 1: Setup base y estrategia asíncrona](#2026-03-11---backend--sprint-1-setup-base-y-estrategia-asíncrona)
 - [[2026-02-16 - 2026-02-23] - Estrategia y documentación](#2026-02-16---2026-02-23---estrategia-y-documentación)
+
+---
+
+## [2026-05-03] - Frontend | Sprint 5.5: Integración real de auth y proxy hacia la API
+
+### Contexto y objetivos
+Cerrar el hito **phase1-5.5** del tablero: que el frontend consuma los endpoints reales de autenticación (`POST /api/v1/auth/login` y `POST /api/v1/auth/register`) según el contrato en `docs/api-contracts/auth.md`, con tráfico bajo el mismo origen en desarrollo (proxy en Next), MSW **opt-in** para no bloquear la API real, y una ruta de **dashboard** mínima que evite el 404 tras el inicio de sesión y permita cerrar la sesión local sin depender solo de las herramientas de desarrollo del navegador.
+
+### Implementación técnica
+- **Proxy de desarrollo:** `rewrites` en `frontend/next.config.ts` hacia `BACKEND_URL` (por defecto `http://127.0.0.1:8000`) para reenviar `/api/:path*` al FastAPI sin exponer la URL del API en el cliente mediante variables `NEXT_PUBLIC_*`.
+- **MSW condicionado:** `frontend/src/components/ui/providers/MSWProvider.tsx` arranca el worker solo si `NODE_ENV` es `development` y `NEXT_PUBLIC_ENABLE_MSW === 'true'`; uso de `finally` para no dejar la aplicación en blanco si el worker no se inicia.
+- **Dashboard mínimo:** `frontend/src/app/[locale]/dashboard/page.tsx` con acción **Cerrar sesión** que invalida la cookie `access_token` (`path=/`, `SameSite=Lax`) y redirige a `/auth/login`, alineado con `frontend/src/proxy.ts`.
+- **Registro real:** `frontend/src/components/ui/auth/RegisterForm.tsx` con `fetch` a `/api/v1/auth/register`, cuerpo JSON con `organization_name` mapeado desde `organizationName`, misma cookie y redirección al dashboard que el login.
+- **Mocks de registro:** `frontend/src/mocks/handlers.ts` con handler de `POST /api/v1/auth/register` (201, 400 para `already@mock.local`, 422 de validación) para pruebas locales con MSW activo; el handler de login sigue limitado al usuario de demo acordado.
+- **Errores de API unificados:** nuevo módulo `frontend/src/lib/api-errors.ts` con `formatFastApiDetail` para `detail` en **string** o **lista** (422); uso en `AuthForm.tsx` y `RegisterForm.tsx` con mensajes por defecto distintos.
+- **Calidad:** ejecución de `bun run lint` en `frontend/` antes de cada entrega en la rama de trabajo.
+
+### 💡 Repaso técnico: mismo origen, cookies y mocks
+El **rewrite** hace que el navegador siga hablando con `localhost:3000` mientras el proceso de Next reenvía `/api/...` al backend: se evita CORS en el navegador y se mantienen coherentes las cookies con `path=/`. **MSW** intercepta en el cliente antes de la red; por eso el flag explícito evita que un desarrollador crea estar probando la API real cuando el worker sigue activo. Los **handlers** imitan el JSON del contrato; no sustituyen la persistencia en PostgreSQL: el registro mock no “crea” usuario para el login mock salvo casos de prueba documentados (p. ej. credenciales fijas de login).
+
+### Problemas surgidos y cómo se abordaron
+- **`curl` devolvía `000`:** el servidor de Next no estaba en marcha o la URL no coincidía con el puerto del `next dev`.
+- **`ECONNREFUSED` al proxy:** el backend no escuchaba en `127.0.0.1:8000`; comportamiento esperado sin contenedor o proceso local del API.
+- **404 en `/es/dashboard`:** la ruta no existía aún; se añadió la página mínima y se explicó el rol de la cookie `access_token` con `proxy.ts` redirigiendo desde login cuando hay sesión.
+- **Confusión MSW vs API real:** se documentó en el equipo que `NEXT_PUBLIC_ENABLE_MSW=true` es solo para trabajo desacoplado; por defecto se prioriza la API real.
+- **Incógnito y MSW:** el modo privado puede interferir con el Service Worker; las pruebas de mock se validaron en ventana normal.
+
+### Próximos pasos
+- Prueba **extremo a extremo** con el backend y la base de datos levantados por el equipo (o entorno compartido) para validar registro y login contra datos persistidos.
+- Avanzar en **fase 2** del roadmap: `AuthContext`, refresh y cierre de sesión más formal, endpoint `/me`, cliente HTTP compartido si aplica, y reutilizar o alinear `frontend/src/lib/validations/auth.ts` con los formularios para evitar duplicar esquemas Zod.
 
 ---
 
